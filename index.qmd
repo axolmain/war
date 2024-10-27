@@ -1,0 +1,125 @@
+---
+title: "US Presidents and the Deaths of Thousands"
+author: "Nathan Lunceford"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: false
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+    
+---
+
+```{python}
+#| label: libraries
+#| include: false
+
+import polars as pl
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import seaborn as sns
+```
+
+
+# **Casualties of War**
+
+```{python}
+#| label: graph
+#| code-summary: "Show Code"
+
+# List of African countries to exclude (example list; not exhaustive)
+african_countries = [
+    "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Cape Verde",
+    "Central African Republic", "Chad", "Comoros", "Congo", "Djibouti", "Egypt", "Equatorial Guinea",
+    "Eritrea", "Eswatini", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau",
+    "Ivory Coast", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali",
+    "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda",
+    "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa",
+    "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"
+]
+
+# Load the CSV file and rename columns
+df = pl.read_csv("countries-in-conflict-data.csv").rename({
+    "Entity": "country",
+    "Code": "country_code",
+    "Year": "year",
+    "Deaths in ongoing conflicts in a country (best estimate) - Conflict type: all": "total_deaths"
+})
+
+# Filter the DataFrame for years between 2009 and 2023, excluding African countries
+df_filtered = df.filter(
+    (pl.col("year") >= 2001) & (pl.col("year") <= 2023) & (~pl.col("country").is_in(african_countries))
+)
+
+# Sum up deaths per year across all non-African countries
+deaths_per_year = (
+    df_filtered.group_by("year")
+    .agg(pl.col("total_deaths").sum().alias("Total Deaths"))
+    .sort("year")
+)
+
+# Convert to pandas for plotting (Polars doesn't support plotting directly)
+deaths_per_year = deaths_per_year.to_pandas()
+
+# Set up a nice style
+sns.set_theme(style="whitegrid")
+
+# Plotting
+plt.figure(figsize=(12, 7))
+plt.plot(deaths_per_year["year"], deaths_per_year["Total Deaths"], marker='o', linestyle='-', color='#8B0000', linewidth=2)  # Dark red color
+
+# Adding vertical lines for election years
+obama_elected = plt.axvline(x=2008, color='blue', linestyle='--', linewidth=1, label="Obama Elected")
+trump_elected = plt.axvline(x=2016, color='red', linestyle='--', linewidth=1, label="Trump Elected")
+biden_elected = plt.axvline(x=2020, color='blue', linestyle='--', linewidth=1, label="Biden Elected")
+
+# Adding shaded regions for each presidency
+bush = plt.axvspan(2001, 2009, color='lightcoral', alpha=0.3, label="Bush/Cheney")
+obama = plt.axvspan(2009, 2017, color='lightblue', alpha=0.3, label="Obama/Biden")
+trump = plt.axvspan(2017, 2021, color='lightcoral', alpha=0.3, label="Trump/Pence")
+biden = plt.axvspan(2021, 2023, color='lightblue', alpha=0.3, label="Biden/Harris")
+
+# Adding data labels above the points
+for x, y in zip(deaths_per_year["year"], deaths_per_year["Total Deaths"]):
+    plt.text(x, y + max(deaths_per_year["Total Deaths"]) * 0.02, f"{y:,}", ha="center", va="bottom", fontsize=11, weight='bold')
+
+# Titles and labels
+plt.title("Total Deaths in Armed Conflicts (2001-2023, Excluding Africa)", fontsize=16, weight='bold')
+plt.xlabel("Year", fontsize=12)
+plt.ylabel("Total Deaths", fontsize=12)
+
+# Format y-axis with commas
+plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x):,}"))
+
+# Improving the x-axis ticks
+plt.xticks(deaths_per_year["year"], rotation=45)
+
+# Adding a subtle grid
+plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+# First legend for presidential terms (upper left), excluding the election lines
+first_legend = plt.legend(handles=[bush, obama, trump, biden], loc="upper left", fontsize=10, title="Presidential Terms")
+plt.gca().add_artist(first_legend)
+
+# Second legend for election years (bottom right)
+plt.legend(handles=[obama_elected, trump_elected, biden_elected], loc="lower right", fontsize=10, title="Election Years")
+
+# Show plot
+plt.tight_layout()
+plt.show()
+```
+
+## **Which party is the party of peace and which is the party of the profits of war?**

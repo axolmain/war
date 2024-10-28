@@ -155,7 +155,43 @@ plt.show()
 
 
 
-# **Which is the party of profits of war?**
+# **Which is the party of the profits of war?**
+
+## **Major Armed Confilcts under Bush/Cheney**
+1. **War in Afghanistan (2001)** - Initiated in response to the 9/11 attacks to dismantle al-Qaeda and remove the Taliban.
+2. **Iraq War (2003)** - Launched over alleged weapons of mass destruction, resulting in the ousting of Saddam Hussein.
+
+### **TOTAL:** 2
+
+## **Major Armed Confilcts under Obama/Biden**
+1. **Libya Intervention (2011)** - U.S. and NATO intervened via airstrikes during the Libyan Civil War, leading to Gaddafi’s ouster and subsequent instability.
+2. **Anti-ISIS Campaign (2014)** - Obama launched airstrikes in Iraq and Syria to counter ISIS, leading to a multi-national coalition against the group.
+3. **Syria Civil War (Indirect)** - While the U.S. didn’t start the war, Obama’s administration provided significant support to anti-Assad rebels and launched strikes against ISIS in Syria.
+4. **Ukraine (2014)** - Following Russia’s annexation of Crimea, the U.S. began providing military aid to Ukraine to support its defense against Russian-backed separatists.
+
+### **TOTAL:** 4
+
+## **Major Armed Confilcts under Trump/Pence**
+1. **Continued Anti-ISIS Operations** - Trump intensified operations in Iraq and Syria, focusing on ISIS.
+
+### **TOTAL:** 1
+
+## **Major Armed Confilcts under Biden/Harris**
+1. **Afghanistan Withdrawal (2021)** - Led to the Taliban regaining control, with subsequent violence affecting both Afghans and U.S. interests.
+2. **Ukraine Conflict (2022)** - Biden’s administration provided extensive military and financial support to Ukraine in response to Russia’s invasion, helping shape the conflict's course.
+3. **Israel-Gaza Conflict (2023)** - Amid escalated violence, the Biden administration provided support to Israel, including emergency aid packages and diplomatic backing.
+
+### **TOTAL:** 3
+
+
+# **Winner:**
+
+### **Biden has spent nearly 12 years in the White House as either Vice President or President, overseeing more major armed conflicts than any other U.S. leader in the past 24 years.**
+
+![](./images/biden.webp){ width=50% }
+
+
+
 
 ```{python}
 #| label: graph2

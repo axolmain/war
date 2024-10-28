@@ -1,5 +1,5 @@
 ---
-title: "US Presidents and the Deaths of Thousands"
+title: "Actions Speak Louder Than Words"
 author: "Nathan Lunceford"
 format:
   html:
@@ -33,6 +33,7 @@ from matplotlib.ticker import FuncFormatter
 import seaborn as sns
 ```
 
+# **Politicians often use optimistic promises to win support, but their past actions reveal their true priorities. Instead of trusting words alone, look at their record — actions speak louder than words.**
 
 # **Casualties of War**
 
@@ -40,7 +41,7 @@ import seaborn as sns
 #| label: graph
 #| code-summary: "Show Code"
 
-# List of African countries to exclude (example list; not exhaustive)
+# List of African countries to exclude
 african_countries = [
     "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Cape Verde",
     "Central African Republic", "Chad", "Comoros", "Congo", "Djibouti", "Egypt", "Equatorial Guinea",
@@ -48,7 +49,8 @@ african_countries = [
     "Ivory Coast", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali",
     "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda",
     "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa",
-    "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"
+    "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe", 
+    "Democratic Republic of the Congo", "Côte d'Ivoire", "Democratic Republic of Congo"
 ]
 
 # Load the CSV file and rename columns
@@ -57,11 +59,37 @@ df = pl.read_csv("countries-in-conflict-data.csv").rename({
     "Code": "country_code",
     "Year": "year",
     "Deaths in ongoing conflicts in a country (best estimate) - Conflict type: all": "total_deaths"
+}).select(["year", "country", "total_deaths"])
+
+# Ensure data types for consistency
+df = df.with_columns([
+    pl.col("year").cast(pl.Int64),
+    pl.col("total_deaths").cast(pl.Int64)
+])
+
+# Load the 2024 data and rename columns
+df_2024 = pl.read_csv("acled_aggregated_20024.csv").rename({
+    "Country": "country",
+    "Fatalities": "total_deaths"
 })
 
-# Filter the DataFrame for years between 2009 and 2023, excluding African countries
-df_filtered = df.filter(
-    (pl.col("year") >= 2001) & (pl.col("year") <= 2023) & (~pl.col("country").is_in(african_countries))
+# Add a 'year' column with the value 2024 and ensure consistency in data types
+df_2024 = df_2024.with_columns([
+    pl.lit(2024).alias("year").cast(pl.Int64),
+    pl.col("total_deaths").cast(pl.Int64)
+]).select(["year", "country", "total_deaths"])
+
+# Append the 2024 data to the main DataFrame
+df_combined = df.vstack(df_2024)
+
+# Remove any trailing or leading whitespace in the 'country' column
+df_combined = df_combined.with_columns(
+    pl.col("country").str.replace(r"^\s+|\s+$", "")  # This regex removes leading and trailing whitespace
+)
+
+# Filter the DataFrame for years between 2001 and 2024, excluding African countries
+df_filtered = df_combined.filter(
+    (pl.col("year") >= 2001) & (pl.col("year") <= 2024) & (~pl.col("country").is_in(african_countries))
 )
 
 # Sum up deaths per year across all non-African countries
@@ -71,33 +99,26 @@ deaths_per_year = (
     .sort("year")
 )
 
-# Convert to pandas for plotting (Polars doesn't support plotting directly)
-deaths_per_year = deaths_per_year.to_pandas()
-
 # Set up a nice style
 sns.set_theme(style="whitegrid")
 
 # Plotting
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(11, 7))
 plt.plot(deaths_per_year["year"], deaths_per_year["Total Deaths"], marker='o', linestyle='-', color='#8B0000', linewidth=2)  # Dark red color
 
-# Adding vertical lines for election years
-obama_elected = plt.axvline(x=2008, color='blue', linestyle='--', linewidth=1, label="Obama Elected")
-trump_elected = plt.axvline(x=2016, color='red', linestyle='--', linewidth=1, label="Trump Elected")
-biden_elected = plt.axvline(x=2020, color='blue', linestyle='--', linewidth=1, label="Biden Elected")
 
 # Adding shaded regions for each presidency
-bush = plt.axvspan(2001, 2009, color='lightcoral', alpha=0.3, label="Bush/Cheney")
-obama = plt.axvspan(2009, 2017, color='lightblue', alpha=0.3, label="Obama/Biden")
-trump = plt.axvspan(2017, 2021, color='lightcoral', alpha=0.3, label="Trump/Pence")
-biden = plt.axvspan(2021, 2023, color='lightblue', alpha=0.3, label="Biden/Harris")
+bush = plt.axvspan(2001, 2008, color='red', alpha=.5, label="Bush/Cheney")
+obama = plt.axvspan(2008, 2016, color='blue', alpha=.5, label="Obama/Biden")
+trump = plt.axvspan(2016, 2020, color='lightcoral', alpha=0.3, label="Trump/Pence")
+biden = plt.axvspan(2020, 2024, color='lightblue', alpha=0.3, label="Biden/Harris")
 
 # Adding data labels above the points
 for x, y in zip(deaths_per_year["year"], deaths_per_year["Total Deaths"]):
     plt.text(x, y + max(deaths_per_year["Total Deaths"]) * 0.02, f"{y:,}", ha="center", va="bottom", fontsize=11, weight='bold')
 
 # Titles and labels
-plt.title("Total Deaths in Armed Conflicts (2001-2023, Excluding Africa)", fontsize=16, weight='bold')
+plt.title("Total Deaths in Armed Conflicts (2001 - October 2024, Excluding Africa)", fontsize=16, weight='bold')
 plt.xlabel("Year", fontsize=12)
 plt.ylabel("Total Deaths", fontsize=12)
 
@@ -114,12 +135,31 @@ plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
 first_legend = plt.legend(handles=[bush, obama, trump, biden], loc="upper left", fontsize=10, title="Presidential Terms")
 plt.gca().add_artist(first_legend)
 
-# Second legend for election years (bottom right)
-plt.legend(handles=[obama_elected, trump_elected, biden_elected], loc="lower right", fontsize=10, title="Election Years")
 
 # Show plot
 plt.tight_layout()
 plt.show()
 ```
 
-## **Which party is the party of peace and which is the party of the profits of war?**
+<div style="display: flex; justify-content: space-between;">
+  <img src="./images/ukrainian-soldiers.webp" alt="Image 1" style="width: 32%;"/>
+  <img src="./images/body-bags.jpg" alt="Image 2" style="width: 32%;"/>
+  <img src="./images/dead.webp" alt="Image 3" style="width: 32%;"/>
+</div>
+
+<div style="display: flex; justify-content: space-between;">
+  <img src="./images/israel2.jpg" alt="Image 2" style="width: 32%;"/>
+  <img src="./images/israel.webp" alt="Image 1" style="width: 32%;"/>
+  <img src="./images/israel3.jpg" alt="Image 3" style="width: 32%;"/>
+</div>
+
+
+
+# **Which is the party of profits of war?**
+
+```{python}
+#| label: graph2
+#| code-summary: "Show Code"
+
+
+```

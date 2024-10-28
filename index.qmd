@@ -141,17 +141,18 @@ plt.tight_layout()
 plt.show()
 ```
 
-<div style="display: flex; justify-content: space-between;">
-  <img src="./images/ukrainian-soldiers.webp" alt="Image 1" style="width: 32%;"/>
-  <img src="./images/body-bags.jpg" alt="Image 2" style="width: 32%;"/>
-  <img src="./images/dead.webp" alt="Image 3" style="width: 32%;"/>
+<div style="display: flex; justify-content: space-between; align-items: stretch;">
+  <img src="./images/ukrainian-soldiers.webp" alt="Image 1" style="width: 32%; height: 100%; object-fit: cover;"/>
+  <img src="./images/body-bags.jpg" alt="Image 2" style="width: 32%; height: 100%; object-fit: cover;"/>
+  <img src="./images/dead.webp" alt="Image 3" style="width: 32%; height: 100%; object-fit: cover;"/>
 </div>
 
-<div style="display: flex; justify-content: space-between;">
-  <img src="./images/israel2.jpg" alt="Image 2" style="width: 32%;"/>
-  <img src="./images/israel.webp" alt="Image 1" style="width: 32%;"/>
-  <img src="./images/israel3.jpg" alt="Image 3" style="width: 32%;"/>
+<div style="display: flex; justify-content: space-between; align-items: stretch;">
+  <img src="./images/israel2.jpg" alt="Image 2" style="width: 32%; height: 100%; object-fit: cover;"/>
+  <img src="./images/israel.webp" alt="Image 1" style="width: 32%; height: 100%; object-fit: cover;"/>
+  <img src="./images/israel3.jpg" alt="Image 3" style="width: 32%; height: 100%; object-fit: cover;"/>
 </div>
+
 
 
 

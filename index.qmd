@@ -184,7 +184,7 @@ plt.show()
 ### **TOTAL:** 3
 
 
-# **Winner:**
+# 🏆 **Winner:** Biden — **Total: 7**
 
 ### **Biden has spent nearly 12 years in the White House as either Vice President or President, overseeing more major armed conflicts than any other U.S. leader in the past 24 years.**
 
